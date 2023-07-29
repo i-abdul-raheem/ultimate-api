@@ -103,7 +103,91 @@ class Stripe extends Response {
       return this.sendResponse(res, 'Internal server error', err, 500);
     }
   };
-  
+  updateCustomer = async (req, res) => {
+    try {
+      const { id } = req.body;
+      if (!id)
+        return this.sendResponse(res, 'Customer id is required', null, 400);
+      const keys = [
+        'address',
+        'balance',
+        'currency',
+        'description',
+        'discount',
+        'email',
+        'phone',
+        'name',
+        'shipping',
+        'test_clock',
+      ];
+      const updatedData = {};
+      keys.forEach((key) => {
+        if (req.body[key]) {
+          updatedData[key] = req.body[key];
+        }
+      });
+      const customer = await this.stripe.customers
+        .update(id, updatedData)
+        .then((res) => res)
+        .catch((err) => err);
+      if (!customer?.object)
+        return this.sendResponse(
+          res,
+          customer?.raw?.message,
+          null,
+          customer?.statusCode
+        );
+      return this.sendResponse(res, 'Customer updated', customer, 200);
+    } catch (err) {
+      return this.sendResponse(res, 'Internal Server Error', err, 500);
+    }
+  };
+  deleteCustomer = async (req, res) => {
+    try {
+      const { id } = req.body;
+      if (!id) {
+        return this.sendResponse(res, 'Customer id is required', null, 400);
+      }
+      const customer = await this.stripe.customers
+        .del(id)
+        .then((res) => res)
+        .catch((err) => err);
+      if (!customer?.deleted)
+        return this.sendResponse(
+          res,
+          customer?.raw?.message,
+          null,
+          customer?.statusCode
+        );
+      return this.sendResponse(res, 'Customer deleted', customer, 200);
+    } catch (err) {
+      return this.sendResponse(res, 'Internal Server Error', err, 500);
+    }
+  };
+  searchCustomer = async (req, res) => {
+    try {
+      const { query, limit } = req.query;
+      if (!query) {
+        return this.sendResponse(res, 'Search query is required', null, 400);
+      }
+      const myQuery = { query };
+      if (limit) myQuery.limit = limit;
+      const customer = await this.stripe.customers
+        .search(myQuery)
+        .then((res) => res)
+        .catch((err) => err);
+      if (!customer?.data || customer?.data.length === 0)
+        return this.sendResponse(
+          res,
+          customer?.raw?.message,
+          null,
+          customer?.statusCode
+        );
+      return this.sendResponse(res, null, customer.data, 200);
+    } catch (err) {
+      return this.sendResponse(res, 'Internal Server Error', err, 500);
+    }
+  };
 }
 
 module.exports = { Stripe };

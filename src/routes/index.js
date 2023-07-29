@@ -5,7 +5,7 @@ const { stripe } = require('./stripe');
 const { authenticate } = require('../middlewares');
 
 router.use('/users', authenticate, users);
-router.use('/stripe', stripe);
+router.use('/stripe', authenticate, stripe);
 router.use('/auth', auth);
 
 module.exports = { router };
