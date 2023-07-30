@@ -1,9 +1,9 @@
-const { validateEmail } = require('../utils');
-const Response = require('./Response');
-const StripeClass = require('stripe');
+const { validateEmail } = require('../../utils');
+const Response = require('../Response');
+const Stripe = require('stripe');
 
-class Stripe extends Response {
-  stripe = StripeClass(
+class Customer extends Response {
+  stripe = Stripe(
     process.env.ENV === 'staging'
       ? process.env.STRIPE_KEY_DEV
       : process.env.STRIPE_KEY_LIVE
@@ -190,4 +190,4 @@ class Stripe extends Response {
   };
 }
 
-module.exports = { Stripe };
+module.exports = { Customer };
